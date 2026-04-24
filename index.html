@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - نظام إدارة الدعم الفني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-blue: #007bff;
+            --light-gray: #f8f9fa;
+            --dark-gray: #333;
+            --text-color: #555;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --font-family: 'Cairo', sans-serif;
+        }
+
+        /* General Styling */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--light-gray);
+            direction: rtl;
+            text-align: right;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Login Card */
+        .login-card {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            margin-bottom: 30px;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        /* Button Styling */
+        .btn {
+            background-color: var(--primary-blue);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Error Message Styling */
+        #error-message {
+            color: red;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>نظام إدارة الدعم الفني</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">اسم المستخدم</label>
+                <input type="text" id="username" class="form-control" placeholder="أدخل اسم المستخدم" required>
+            </div>
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" class="form-control" placeholder="أدخل كلمة المرور" required>
+            </div>
+            <button type="submit" class="btn">تسجيل الدخول</button>
+            <p id="error-message"></p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            // Define user credentials and redirects
+            const users = {
+                "Fars": { password: "Aa1234", role: "user", redirect: "user_dashboard.html" },
+                "Turki": { password: "Aa098", role: "support", redirect: "support_dashboard.html" }, // Redirects to support_dashboard.html
+                "Mohammed": { password: "Aa5396", role: "admin", redirect: "admin_dashboard.html" }
+            };
+
+            if (users[username] && users[username].password === password) {
+                // Successful login, store session data and login time (if support staff)
+                localStorage.setItem('currentUser', username); // Store current user for tracking
+                if (username === "Turki" || username === "Fars") {
+                    localStorage.setItem(`${username}_login_time`, new Date().getTime());
+                    localStorage.removeItem(`${username}_logout_time`); // Clear previous logout time on new login
+                }
+                window.location.href = users[username].redirect;
+            } else {
+                errorMessage.textContent = "اسم المستخدم أو كلمة المرور غير صحيحة.";
+            }
+        });
+    </script>
+
+</body>
+</html>

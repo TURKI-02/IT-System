@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المستخدمين - نظام إدارة الدعم الفني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Include CSS from previous files and add specific styles for Admin features -->
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-blue: #007bff;
+            --light-gray: #f8f9fa;
+            --dark-gray: #333;
+            --text-color: #555;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --font-family: 'Cairo', sans-serif;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        /* General Styling */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--light-gray);
+            direction: rtl;
+            text-align: right;
+            margin: 0;
+            color: var(--dark-gray);
+        }
+
+        /* Grid Layout for Dashboard */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            background-color: #fff;
+            padding: 20px;
+            border-left: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+        .sidebar h3 {color: var(--primary-blue); text-align: center; margin-bottom: 30px;}
+        .sidebar ul {list-style: none; padding: 0;}
+        .sidebar li {margin-bottom: 10px;}
+        .sidebar a {display: block; padding: 12px 15px; text-decoration: none; color: var(--dark-gray); border-radius: var(--border-radius); transition: background-color 0.3s, color 0.3s;}
+        .sidebar a:hover, .sidebar a.active {background-color: var(--primary-blue); color: #fff;}
+
+        /* Main Content Styling */
+        .main-content {
+            padding: 30px;
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; color: var(--dark-gray); }
+
+        /* Table and actions styling */
+        .table-container {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .action-bar { padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .action-button { background-color: var(--primary-blue); color: #fff; border: none; padding: 10px 15px; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.3s; }
+        .action-button:hover { background-color: #0056b3; }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 15px 20px; border-bottom: 1px solid var(--border-color); text-align: right; }
+        .data-table th { background-color: var(--light-gray); font-weight: 600; color: var(--dark-gray); }
+        .data-table td .status-badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 12px; color: #fff; }
+        .status-badge.active { background-color: var(--success-color); }
+        .status-badge.inactive { background-color: var(--danger-color); }
+
+        /* Modal styling (for add user) */
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); width: 90%; max-width: 500px; position: relative; }
+        .modal-close { position: absolute; top: 10px; left: 15px; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-control, .form-select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius); box-sizing: border-box; }
+        .form-button { background-color: var(--primary-blue); color: #fff; border: none; padding: 10px 15px; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.3s; margin-top: 10px; }
+        .form-button:hover { background-color: #0056b3; }
+
+        /* Logout button style */
+        .logout-btn {
+            background-color: var(--danger-color);
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .logout-btn:hover { background-color: #c82333; }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .sidebar { border-bottom: 1px solid var(--border-color); border-left: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h3>نظام الدعم الفني</h3>
+            <nav>
+                <ul>
+                    <!-- القائمة الجانبية المعدلة: تم حذف "الرئيسية", "إدارة البلاغات", و "جرد الأجهزة" -->
+                    <li><a href="#" class="sidebar-link active" data-section="manage-users">إدارة المستخدمين</a></li>
+                    <li><a href="staff_monitoring.html">متابعة الموظفين</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>إدارة المستخدمين</h1>
+                <a href="#" class="logout-btn" onclick="handleLogout()">تسجيل الخروج</a>
+            </header>
+
+            <section class="table-container">
+                <div class="action-bar">
+                    <button class="action-button" onclick="openModal()">+ إضافة مستخدم جديد</button>
+                </div>
+                <!-- User table here -->
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>نوع الحساب</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>فارس</td><td>مستخدم</td><td><span class="status-badge active">نشط</span></td><td><button class="action-button small">تعديل</button><button class="action-button small danger-button">حذف</button></td></tr>
+                        <tr><td>تركي</td><td>الدعم</td><td><span class="status-badge active">نشط</span></td><td><button class="action-button small">تعديل</button><button class="action-button small danger-button">حذف</button></td></tr>
+                        <tr><td>محمد</td><td>المشرف</td><td><span class="status-badge active">نشط</span></td><td><button class="action-button small">تعديل</button><button class="action-button small danger-button">حذف</button></td></tr>
+                        <tr><td>أحمد</td><td>مستخدم</td><td><span class="status-badge inactive">غير نشط</span></td><td><button class="action-button small">تعديل</button><button class="action-button small danger-button">حذف</button></td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Add User -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h3>إضافة مستخدم جديد</h3>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label for="new-username">اسم المستخدم</label>
+                    <input type="text" id="new-username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">كلمة المرور</label>
+                    <input type="password" id="new-password" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="account-type">نوع الحساب</label>
+                    <select id="account-type" class="form-select" required>
+                        <option value="user">مستخدم عادي</option>
+                        <option value="support">فريق الدعم</option>
+                        <option value="admin">إدارة (Admin)</option>
+                    </select>
+                </div>
+                <button type="submit" class="form-button">حفظ المستخدم</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal logic (reused from previous step)
+        function openModal() { document.getElementById('addUserModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('addUserModal').style.display = 'none'; }
+        window.onclick = function(event) { if (event.target == document.getElementById('addUserModal')) { closeModal(); } }
+        document.getElementById('addUserForm').addEventListener('submit', function(e) { e.preventDefault(); alert('تم إضافة المستخدم بنجاح (Simulation)'); closeModal(); });
+
+        // --- Logout Logic ---
+        function handleLogout() {
+            // Clear current user session data
+            localStorage.removeItem('currentUser');
+            // Redirect to login page
+            window.location.href = 'index.html';
+        }
+    </script>
+
+</body>
+</html>

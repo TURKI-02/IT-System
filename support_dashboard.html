@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الدعم الفني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-blue: #007bff;
+            --light-gray: #f8f9fa;
+            --dark-gray: #333;
+            --text-color: #555;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --font-family: 'Cairo', sans-serif;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        /* General Styling */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--light-gray);
+            direction: rtl;
+            text-align: right;
+            margin: 0;
+            color: var(--dark-gray);
+        }
+
+        /* Grid Layout for Dashboard */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr; /* Sidebar width and content area width */
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            background-color: #fff;
+            padding: 20px;
+            border-left: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+        .sidebar h3 { color: var(--primary-blue); text-align: center; margin-bottom: 30px; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar li { margin-bottom: 10px; }
+        .sidebar a { display: block; padding: 12px 15px; text-decoration: none; color: var(--dark-gray); border-radius: var(--border-radius); transition: background-color 0.3s, color 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background-color: var(--primary-blue); color: #fff; }
+
+        /* Main Content Styling */
+        .main-content { padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; color: var(--dark-gray); }
+
+        /* Logout button style */
+        .logout-btn {
+            background-color: var(--danger-color);
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .logout-btn:hover { background-color: #c82333; }
+
+        /* Tables and Forms common styles */
+        .table-container {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 15px 20px; border-bottom: 1px solid var(--border-color); text-align: right; }
+        .data-table th { background-color: var(--light-gray); font-weight: 600; color: var(--dark-gray); }
+        .action-bar { padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .action-button { background-color: var(--primary-blue); color: #fff; border: none; padding: 10px 15px; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.3s; margin-left: 10px; }
+        .action-button.danger-button { background-color: var(--danger-color); }
+        .action-button.danger-button:hover { background-color: #c82333; }
+        .action-button:hover { background-color: #0056b3; }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #fff;
+            text-align: center;
+            min-width: 80px;
+        }
+        .status-badge.new { background-color: var(--primary-blue); }
+        .status-badge.in_progress { background-color: var(--warning-color); }
+        .status-badge.resolved { background-color: var(--success-color); }
+        .status-badge.working { background-color: var(--success-color); }
+        .status-badge.maintenance { background-color: var(--warning-color); }
+        .status-badge.faulty { background-color: var(--danger-color); }
+        .data-table select.status-changer { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-family: var(--font-family); }
+
+        /* Modal styling (for add device) */
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); width: 90%; max-width: 500px; position: relative; }
+        .modal-close { position: absolute; top: 10px; left: 15px; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-control, .form-select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius); box-sizing: border-box; font-family: var(--font-family); }
+        .form-button { background-color: var(--primary-blue); color: #fff; border: none; padding: 10px 15px; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.3s; margin-top: 10px; }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .sidebar { border-bottom: 1px solid var(--border-color); border-left: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h3>نظام الدعم الفني</h3>
+            <nav>
+                <ul>
+                    <!-- القائمة الجانبية المعدلة: تم حذف "الرئيسية" و "متابعة الموظفين" -->
+                    <li><a href="#" class="sidebar-link active" data-section="manage-tickets">إدارة البلاغات</a></li>
+                    <li><a href="#" class="sidebar-link" data-section="inventory">جرد الأجهزة</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1 id="page-title">إدارة البلاغات</h1>
+                <a href="#" class="logout-btn" onclick="handleLogout()">تسجيل الخروج</a>
+            </header>
+
+            <!-- 1. إدارة البلاغات Section -->
+            <section id="manage-tickets-content" class="content-section">
+                <div class="tickets-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>رقم البلاغ</th>
+                                <th>العنوان</th>
+                                <th>وصف المشكلة</th>
+                                <th>مقدم البلاغ</th>
+                                <th>نوع المشكلة</th>
+                                <th>أولوية البلاغ</th>
+                                <th>الحالة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tickets-list-body">
+                            <!-- البلاغات ستظهر هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 2. جرد الأجهزة Section -->
+            <section id="inventory-content" class="content-section" style="display: none;">
+                <header class="header">
+                    <h1 class="hidden">جرد الأجهزة</h1>
+                </header>
+                <div class="table-container">
+                    <div class="action-bar">
+                        <button class="action-button" onclick="openModal()">+ إضافة جهاز</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>اسم الجهاز</th>
+                                <th>النوع</th>
+                                <th>الحالة</th>
+                                <th>القسم</th>
+                                <th>المستخدم المسؤول</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-list-body">
+                            <!-- الأجهزة ستظهر هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Add/Edit Device -->
+    <div id="addDeviceModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <h3 id="modal-title">إضافة جهاز جديد</h3>
+            <form id="addDeviceForm">
+                <input type="hidden" id="device-id-to-edit">
+                <div class="form-group">
+                    <label for="device-name">اسم الجهاز</label>
+                    <input type="text" id="device-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="device-type">نوع الجهاز</label>
+                    <select id="device-type" class="form-select" required>
+                        <option value="laptop">لابتوب</option>
+                        <option value="desktop">كمبيوتر مكتبي</option>
+                        <option value="printer">طابعة</option>
+                        <option value="monitor">شاشة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="device-status">الحالة</label>
+                    <select id="device-status" class="form-select" required>
+                        <option value="working">يعمل</option>
+                        <option value="maintenance">صيانة</option>
+                        <option value="faulty">معطل</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="device-location">القسم</label>
+                    <input type="text" id="device-location" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="assigned-user">المستخدم المسؤول</label>
+                    <input type="text" id="assigned-user" class="form-control" required>
+                </div>
+                <button type="submit" class="form-button" id="save-device-button">حفظ الجهاز</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Navigation Logic ---
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const contentSections = document.querySelectorAll('.content-section');
+        const pageTitleElement = document.getElementById('page-title');
+
+        function showSection(sectionId) {
+            contentSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId + '-content').style.display = 'block';
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            if (sectionId === 'manage-tickets') {
+                pageTitleElement.textContent = 'إدارة البلاغات';
+                renderTickets(); // Ensure tickets are rendered when this section is active
+            } else if (sectionId === 'inventory') {
+                pageTitleElement.textContent = 'جرد الأجهزة';
+                renderInventory(); // Ensure inventory is rendered when this section is active
+            }
+        }
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('data-section');
+                showSection(sectionId);
+            });
+        });
+
+        // --- Logout Logic ---
+        function handleLogout() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser === 'Turki') {
+                localStorage.setItem('Turki_logout_time', new Date().getTime());
+            }
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // --- Tickets Management Logic ---
+        function loadTickets() { return JSON.parse(localStorage.getItem('tickets')) || []; }
+
+        function renderTickets() {
+            const tickets = loadTickets();
+            const ticketsBody = document.getElementById('tickets-list-body');
+            ticketsBody.innerHTML = '';
+
+            tickets.forEach(ticket => {
+                const row = document.createElement('tr');
+                const getStatusBadge = (status) => {
+                    let text = '';
+                    let colorClass = '';
+                    switch (status) {
+                        case 'new': text = 'جديد'; colorClass = 'new'; break;
+                        case 'in_progress': text = 'قيد التنفيذ'; colorClass = 'in_progress'; break;
+                        case 'resolved': text = 'تم إغلاق الطلب'; colorClass = 'resolved'; break;
+                        default: text = 'غير محدد'; colorClass = 'new';
+                    }
+                    return `<span class="status-badge ${colorClass}">${text}</span>`;
+                };
+
+                row.innerHTML = `
+                    <td>#${ticket.id}</td>
+                    <td>${ticket.title}</td>
+                    <td>${ticket.description}</td>
+                    <td>${ticket.reporter || 'غير محدد'}</td>
+                    <td>${ticket.type}</td>
+                    <td>${ticket.priority}</td>
+                    <td>${getStatusBadge(ticket.status)}</td>
+                    <td>
+                        <select class="status-changer" data-ticket-id="${ticket.id}" onchange="updateTicketStatus(this)">
+                            <option value="new" ${ticket.status === 'new' ? 'selected' : ''}>جديد</option>
+                            <option value="in_progress" ${ticket.status === 'in_progress' ? 'selected' : ''}>قيد التنفيذ</option>
+                            <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>تم إغلاق الطلب</option>
+                        </select>
+                    </td>
+                `;
+                ticketsBody.appendChild(row);
+            });
+        }
+
+        function updateTicketStatus(selectElement) {
+            const ticketId = selectElement.getAttribute('data-ticket-id');
+            const newStatus = selectElement.value;
+            let tickets = loadTickets();
+            const ticketToUpdate = tickets.find(ticket => ticket.id == ticketId);
+            if (ticketToUpdate) {
+                ticketToUpdate.status = newStatus;
+            }
+            localStorage.setItem('tickets', JSON.stringify(tickets));
+            renderTickets();
+        }
+
+        // --- Inventory Management Logic (Updated Code) ---
+
+        // Load existing inventory data from localStorage on page load
+        let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+
+        // Function to render inventory table
+        function renderInventory() {
+            const inventoryBody = document.getElementById('inventory-list-body');
+            inventoryBody.innerHTML = ''; // Clear existing list
+
+            inventory.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.name}</td>
+                    <td>${device.type}</td>
+                    <td>${getDeviceStatusBadge(device.status)}</td>
+                    <td>${device.location}</td>
+                    <td>${device.user}</td>
+                    <td>
+                        <button class="action-button small" onclick="editDevice(${device.id})">تعديل</button>
+                        <button class="action-button small danger-button" onclick="deleteDevice(${device.id})">حذف</button>
+                    </td>
+                `;
+                inventoryBody.appendChild(row);
+            });
+        }
+
+        // Helper function for device status badge display
+        function getDeviceStatusBadge(status) {
+            let text = '';
+            let colorClass = '';
+            switch (status) {
+                case 'working': text = 'يعمل'; colorClass = 'working'; break;
+                case 'maintenance': text = 'صيانة'; colorClass = 'maintenance'; break;
+                case 'faulty': text = 'معطل'; colorClass = 'faulty'; break;
+            }
+            return `<span class="status-badge ${colorClass}">${text}</span>`;
+        }
+
+        // Add/Edit device form submission logic
+        document.getElementById('addDeviceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const deviceId = document.getElementById('device-id-to-edit').value;
+            const newDeviceData = {
+                id: deviceId ? parseInt(deviceId) : inventory.length + 1,
+                name: document.getElementById('device-name').value,
+                type: document.getElementById('device-type').value,
+                status: document.getElementById('device-status').value,
+                location: document.getElementById('device-location').value,
+                user: document.getElementById('assigned-user').value
+            };
+
+            if (deviceId) {
+                // Edit existing device
+                const index = inventory.findIndex(d => d.id === parseInt(deviceId));
+                if (index !== -1) {
+                    inventory[index] = newDeviceData;
+                }
+            } else {
+                // Add new device
+                inventory.push(newDeviceData);
+            }
+
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            renderInventory(); // Refresh the list
+            closeModal(); // Close the modal after submission
+            this.reset(); // Clear the form
+        });
+
+        // Delete device logic
+        function deleteDevice(id) {
+            if (confirm("هل أنت متأكد من حذف هذا الجهاز؟")) {
+                inventory = inventory.filter(device => device.id !== id);
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+                renderInventory(); // Refresh the list after deletion
+            }
+        }
+
+        // Edit device logic (load data into modal)
+        function editDevice(id) {
+            const deviceToEdit = inventory.find(device => device.id === id);
+            if (deviceToEdit) {
+                document.getElementById('device-id-to-edit').value = deviceToEdit.id;
+                document.getElementById('device-name').value = deviceToEdit.name;
+                document.getElementById('device-type').value = deviceToEdit.type;
+                document.getElementById('device-status').value = deviceToEdit.status;
+                document.getElementById('device-location').value = deviceToEdit.location;
+                document.getElementById('assigned-user').value = deviceToEdit.user;
+                document.getElementById('modal-title').textContent = 'تعديل بيانات الجهاز';
+                document.getElementById('save-device-button').textContent = 'حفظ التعديلات';
+                openModal();
+            }
+        }
+
+        // Modal open/close logic (reset form on open)
+        function openModal() {
+            document.getElementById('modal-title').textContent = 'إضافة جهاز جديد';
+            document.getElementById('save-device-button').textContent = 'حفظ الجهاز';
+            document.getElementById('device-id-to-edit').value = ''; // Clear ID for add mode
+            document.getElementById('addDeviceForm').reset();
+            document.getElementById('addDeviceModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('addDeviceModal').style.display = 'none'; }
+        window.onclick = function(event) { if (event.target == document.getElementById('addDeviceModal')) { closeModal(); } }
+
+        // Initial load logic: ensure first section is loaded on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in before rendering.
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser === 'Turki') {
+                showSection('manage-tickets'); // Default view for Support staff
+            } else {
+                // If somehow on support dashboard without being Turki, redirect to login
+                // window.location.href = 'index.html';
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المستخدم - نظام إدارة الدعم الفني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-blue: #007bff;
+            --light-gray: #f8f9fa;
+            --dark-gray: #333;
+            --text-color: #555;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --font-family: 'Cairo', sans-serif;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        /* General Styling */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--light-gray);
+            direction: rtl;
+            text-align: right;
+            margin: 0;
+            color: var(--dark-gray);
+        }
+
+        /* Grid Layout for Dashboard */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr; /* Sidebar width and content area width */
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            background-color: #fff;
+            padding: 20px;
+            border-left: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+        .sidebar h3 { color: var(--primary-blue); text-align: center; margin-bottom: 30px; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar li { margin-bottom: 10px; }
+        .sidebar a { display: block; padding: 12px 15px; text-decoration: none; color: var(--dark-gray); border-radius: var(--border-radius); transition: background-color 0.3s, color 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background-color: var(--primary-blue); color: #fff; }
+
+        /* Main Content Styling */
+        .main-content { padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; color: var(--dark-gray); }
+
+        /* New Logout Button Style */
+        .logout-btn {
+            background-color: var(--danger-color);
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .logout-btn:hover { background-color: #c82333; }
+
+        /* Statistics Cards (reused) */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-card .value { font-size: 32px; font-weight: 700; margin-top: 10px; color: var(--primary-blue); }
+        .stat-card .label { font-size: 14px; color: var(--text-color); }
+
+        /* Form Styling */
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin: auto;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-color); }
+        .form-control, .form-select {
+            width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius);
+            box-sizing: border-box; font-size: 16px; font-family: var(--font-family);
+        }
+        .form-control:focus, .form-select:focus { outline: none; border-color: var(--primary-blue); }
+        .btn { background-color: var(--primary-blue); color: #fff; border: none; padding: 12px 20px; border-radius: var(--border-radius); font-size: 16px; cursor: pointer; width: auto; margin-top: 10px; transition: background-color 0.3s; }
+        .btn:hover { background-color: #0056b3; }
+
+        /* My Tickets Table Styling */
+        .tickets-table-container {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 15px 20px; border-bottom: 1px solid var(--border-color); text-align: right; }
+        .data-table th { background-color: var(--light-gray); font-weight: 600; color: var(--dark-gray); }
+        .data-table td:last-child { text-align: center; }
+
+        /* Status badges (New) */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #fff;
+        }
+        .status-badge.new { background-color: var(--primary-blue); }
+        .status-badge.in_progress { background-color: var(--warning-color); }
+        .status-badge.resolved { background-color: var(--success-color); }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .sidebar { border-bottom: 1px solid var(--border-color); border-left: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h3>نظام الدعم الفني</h3>
+            <nav>
+                <ul>
+                    <li><a href="#" class="sidebar-link active" data-section="home">الرئيسية</a></li>
+                    <li><a href="diagnosis_guide.html">دليل التشخيص</a></li>
+                    <li><a href="#" class="sidebar-link" data-section="create-ticket">إنشاء بلاغ</a></li>
+                    <li><a href="#" class="sidebar-link" data-section="my-tickets">بلاغاتي</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>لوحة المستخدم</h1>
+                <a href="#" class="logout-btn" onclick="handleLogout()">تسجيل الخروج</a>
+            </header>
+
+            <!-- 1. الرئيسية Section -->
+            <section id="home-content" class="content-section">
+                <div class="quick-stats">
+                    <h2>إحصائيات البلاغات</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="value" id="total-tickets">0</div>
+                            <div class="label">إجمالي البلاغات</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="pending-tickets">0</div>
+                            <div class="label">بلاغات قيد الانتظار</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="resolved-tickets">0</div>
+                            <div class="label">بلاغات مكتملة</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. إنشاء بلاغ Section -->
+            <section id="create-ticket-content" class="content-section" style="display: none;">
+                <header class="header">
+                    <h1>إنشاء بلاغ جديد</h1>
+                </header>
+                <div class="form-container">
+                    <form id="create-ticket-form">
+                        <div class="form-group">
+                            <label for="ticket-title">عنوان المشكلة</label>
+                            <input type="text" id="ticket-title" class="form-control" placeholder="أدخل عنواناً واضحاً للمشكلة" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-description">وصف المشكلة</label>
+                            <textarea id="ticket-description" class="form-control" rows="5" placeholder="تفاصيل دقيقة تساعد في حل المشكلة" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="problem-type">نوع المشكلة</label>
+                            <select id="problem-type" class="form-select" required>
+                                <option value="" disabled selected>اختر نوع المشكلة</option>
+                                <option value="hardware">أجهزة (Hardware)</option>
+                                <option value="network">شبكات (Network)</option>
+                                <option value="printer">طابعات (Printers)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-priority">أولوية البلاغ</label>
+                            <select id="ticket-priority" class="form-select" required>
+                                <option value="low">منخفض</option>
+                                <option value="medium" selected>متوسط</option>
+                                <option value="high">عالي</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">إرسال البلاغ</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 3. بلاغاتي Section -->
+            <section id="my-tickets-content" class="content-section" style="display: none;">
+                <header class="header">
+                    <h1>بلاغاتي</h1>
+                </header>
+                <div class="tickets-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>رقم البلاغ</th>
+                                <th>العنوان</th>
+                                <th>النوع</th>
+                                <th>الأولوية</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tickets-list-body">
+                            <!-- البلاغات ستظهر هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // --- Navigation Logic ---
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        // Function to show the selected section and update active link status
+        function showSection(sectionId) {
+            contentSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId + '-content').style.display = 'block';
+
+            // Update active link styling
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            // Specific action for "My Tickets" section: render tickets on view load
+            if (sectionId === 'my-tickets') {
+                renderTickets();
+            }
+        }
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('data-section');
+                showSection(sectionId);
+            });
+        });
+
+        // --- Data Storage and Logic (Simulation using localStorage) ---
+        // Load existing tickets from localStorage on page load
+        let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
+
+        // --- Create Ticket Form Submission ---
+        document.getElementById('create-ticket-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 1. Get form data
+            const title = document.getElementById('ticket-title').value;
+            const description = document.getElementById('ticket-description').value;
+            const type = document.getElementById('problem-type').value;
+            const priority = document.getElementById('ticket-priority').value;
+
+            // Get current user (Fars) from a session variable or hardcode if always Fars in this view
+            const currentUser = localStorage.getItem('currentUser') || 'Fars';
+
+            // 2. Create ticket object
+            const newTicket = {
+                id: tickets.length + 1, // Simple auto-increment ID
+                reporter: currentUser, // Store the user who reported the issue
+                title: title,
+                description: description,
+                type: type,
+                priority: priority,
+                status: 'new' // Initial status
+            };
+
+            // 3. Store ticket and update localStorage
+            tickets.push(newTicket);
+            localStorage.setItem('tickets', JSON.stringify(tickets));
+
+            // 4. Update UI and stats
+            alert('تم إرسال بلاغك بنجاح. رقم البلاغ: #' + newTicket.id);
+            updateDashboardStats();
+            this.reset();
+            showSection('my-tickets'); // Go to "My Tickets" after submission
+        });
+
+        // --- Render My Tickets List ---
+        function renderTickets() {
+            const ticketsBody = document.getElementById('tickets-list-body');
+            ticketsBody.innerHTML = ''; // Clear existing list
+
+            tickets.forEach(ticket => {
+                const row = document.createElement('tr');
+
+                const getStatusBadge = (status) => {
+                    let text = '';
+                    let colorClass = '';
+                    switch (status) {
+                        case 'new':
+                            text = 'جديد';
+                            colorClass = 'new';
+                            break;
+                        case 'in_progress':
+                            text = 'قيد التنفيذ';
+                            colorClass = 'in_progress';
+                            break;
+                        case 'resolved':
+                            text = 'تم إغلاق الطلب';
+                            colorClass = 'resolved';
+                            break;
+                        default:
+                            text = 'غير محدد';
+                            colorClass = 'new';
+                    }
+                    return `<span class="status-badge ${colorClass}">${text}</span>`;
+                };
+
+                row.innerHTML = `
+                    <td>#${ticket.id}</td>
+                    <td>${ticket.title}</td>
+                    <td>${ticket.type}</td>
+                    <td>${ticket.priority}</td>
+                    <td>${getStatusBadge(ticket.status)}</td>
+                `;
+                ticketsBody.appendChild(row);
+            });
+        }
+
+        // --- Update Dashboard Statistics (Home Section) ---
+        function updateDashboardStats() {
+            document.getElementById('total-tickets').textContent = tickets.length;
+            document.getElementById('pending-tickets').textContent = tickets.filter(t => t.status !== 'resolved').length;
+            document.getElementById('resolved-tickets').textContent = tickets.filter(t => t.status === 'resolved').length;
+        }
+
+        // --- Logout Logic ---
+        function handleLogout() {
+            // Clear current user session data
+            localStorage.removeItem('currentUser');
+            // Redirect to login page
+            window.location.href = 'index.html';
+        }
+
+        // Initial load logic: ensure stats are updated when page loads (if data exists)
+        document.addEventListener('DOMContentLoaded', updateDashboardStats);
+    </script>
+
+</body>
+</html>

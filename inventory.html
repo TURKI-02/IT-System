@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جرد الأجهزة - نظام إدارة الدعم الفني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Include CSS from previous files and add specific styles for Inventory -->
+    <style>
+        /* CSS Variables (similar to previous files) */
+        :root {
+            --primary-blue: #007bff;
+            --light-gray: #f8f9fa;
+            --dark-gray: #333;
+            --text-color: #555;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --font-family: 'Cairo', sans-serif;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        /* General Styling */
+        body { font-family: var(--font-family); background-color: var(--light-gray); direction: rtl; text-align: right; margin: 0; color: var(--dark-gray); }
+        .dashboard-layout { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
+        .sidebar { background-color: #fff; padding: 20px; border-left: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .sidebar h3 {color: var(--primary-blue); text-align: center; margin-bottom: 30px;}
+        .sidebar ul {list-style: none; padding: 0;}
+        .sidebar li {margin-bottom: 10px;}
+        .sidebar a {display: block; padding: 12px 15px; text-decoration: none; color: var(--dark-gray); border-radius: var(--border-radius); transition: background-color 0.3s, color 0.3s;}
+        .sidebar a:hover, .sidebar a.active {background-color: var(--primary-blue); color: #fff;}
+        .main-content { padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; color: var(--dark-gray); }
+
+        /* Table specific styling */
+        .table-container { background-color: #fff; border-radius: var(--border-radius); box-shadow: var(--shadow); overflow: hidden; }
+        .action-bar { padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .action-button { background-color: var(--primary-blue); color: #fff; border: none; padding: 10px 15px; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.3s; margin-left: 10px; }
+        .action-button:hover { background-color: #0056b3; }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 15px 20px; border-bottom: 1px solid var(--border-color); text-align: right; }
+        .data-table th { background-color: var(--light-gray); font-weight: 600; color: var(--dark-gray); }
+
+        /* Status badges */
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 12px; color: #fff; }
+        .status-badge.working { background-color: var(--success-color); }
+        .status-badge.maintenance { background-color: var(--warning-color); }
+        .status-badge.faulty { background-color: var(--danger-color); }
+
+        /* Modal styling (for add device) */
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); width: 90%; max-width: 500px; position: relative; }
+        .modal-close { position: absolute; top: 10px; left: 15px; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-control, .form-select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius); box-sizing: border-box; }
+        .form-button { background-color: var(--primary-blue); color: #fff; border: none; padding: 10px 15px; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.3s; margin-top: 10px; }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .sidebar { border-bottom: 1px solid var(--border-color); border-left: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h3>نظام الدعم الفني</h3>
+            <nav>
+                <ul>
+                    <li><a href="#manage-tickets">إدارة البلاغات</a></li>
+                    <li><a href="inventory.html" class="active">جرد الأجهزة</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>جرد الأجهزة</h1>
+            </header>
+
+            <section class="table-container">
+                <div class="action-bar">
+                    <button class="action-button" onclick="openModal()">+ إضافة جهاز</button>
+                    <button class="action-button">تصدير</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>اسم الجهاز</th>
+                            <th>النوع</th>
+                            <th>الحالة</th>
+                            <th>الموقع</th>
+                            <th>المستخدم المسؤول</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>كمبيوتر محمول HP ProBook</td>
+                            <td>لابتوب</td>
+                            <td><span class="status-badge working">يعمل</span></td>
+                            <td>قسم المبيعات</td>
+                            <td>أحمد محمد</td>
+                            <td><button class="action-button small">تعديل</button> <button class="action-button small danger-button">حذف</button></td>
+                        </tr>
+                        <tr>
+                            <td>طابعة ليزر Canon TS700</td>
+                            <td>طابعة</td>
+                            <td><span class="status-badge faulty">معطل</span></td>
+                            <td>المكتب الرئيسي</td>
+                            <td>قسم الإدارة</td>
+                            <td><button class="action-button small">تعديل</button> <button class="action-button small danger-button">حذف</button></td>
+                        </tr>
+                        <tr>
+                            <td>شاشة Dell UltraSharp</td>
+                            <td>شاشة</td>
+                            <td><span class="status-badge maintenance">صيانة</span></td>
+                            <td>مستودع الصيانة</td>
+                            <td>تركي (الدعم)</td>
+                            <td><button class="action-button small">تعديل</button> <button class="action-button small danger-button">حذف</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Add Device -->
+    <div id="addDeviceModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <h3>إضافة جهاز جديد</h3>
+            <form id="addDeviceForm">
+                <div class="form-group">
+                    <label for="device-name">اسم الجهاز</label>
+                    <input type="text" id="device-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="device-type">نوع الجهاز</label>
+                    <select id="device-type" class="form-select" required>
+                        <option value="laptop">لابتوب</option>
+                        <option value="desktop">كمبيوتر مكتبي</option>
+                        <option value="printer">طابعة</option>
+                        <option value="monitor">شاشة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="device-status">الحالة</label>
+                    <select id="device-status" class="form-select" required>
+                        <option value="working">يعمل</option>
+                        <option value="maintenance">صيانة</option>
+                        <option value="faulty">معطل</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="device-location">الموقع</label>
+                    <input type="text" id="device-location" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="assigned-user">المستخدم المسؤول</label>
+                    <input type="text" id="assigned-user" class="form-control" required>
+                </div>
+                <button type="submit" class="form-button">حفظ الجهاز</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal logic
+        function openModal() {
+            document.getElementById('addDeviceModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('addDeviceModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('addDeviceModal')) {
+                closeModal();
+            }
+        }
+        document.getElementById('addDeviceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('تم إضافة الجهاز بنجاح (Simulation)');
+            closeModal();
+        });
+    </script>
+
+</body>
+</html>
