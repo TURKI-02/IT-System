@@ -179,6 +179,9 @@
                                 <th>الحالة</th>
                                 <th>القسم</th>
                                 <th>المستخدم المسؤول</th>
+                                <!-- New Columns added based on user request -->
+                                <th>تاريخ الشراء</th>
+                                <th>تاريخ الصيانة</th>
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
@@ -209,6 +212,7 @@
                         <option value="desktop">كمبيوتر مكتبي</option>
                         <option value="printer">طابعة</option>
                         <option value="monitor">شاشة</option>
+                        <option value="network">شبكة</option> <!-- New option added for Turki's example -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -226,6 +230,15 @@
                 <div class="form-group">
                     <label for="assigned-user">المستخدم المسؤول</label>
                     <input type="text" id="assigned-user" class="form-control" required>
+                </div>
+                <!-- New fields for purchase and maintenance dates -->
+                <div class="form-group">
+                    <label for="device-purchase-date">تاريخ الشراء</label>
+                    <input type="date" id="device-purchase-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="device-maintenance-date">تاريخ الصيانة</label>
+                    <input type="date" id="device-maintenance-date" class="form-control">
                 </div>
                 <button type="submit" class="form-button" id="save-device-button">حفظ الجهاز</button>
             </form>
@@ -333,7 +346,38 @@
         // --- Inventory Management Logic (Updated Code) ---
 
         // Load existing inventory data from localStorage on page load
-        let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+        let inventory = JSON.parse(localStorage.getItem('inventory'));
+
+        // Function to initialize default inventory if localStorage is empty
+        function initializeInventory() {
+            if (!inventory || inventory.length === 0) {
+                inventory = [
+                    // Example 1: Fars's Computer - as requested by user
+                    {
+                        id: 1,
+                        name: 'كمبيوتر فارس',
+                        type: 'desktop',
+                        status: 'working',
+                        location: 'HR', // قسم HR
+                        user: 'Fars', // فارس
+                        purchaseDate: '2024-05-06', // تاريخ الشراء
+                        maintenanceDate: '2025-12-29' // تاريخ الصيانة
+                    },
+                    // Example 2: Turki's Network - as requested by user
+                    {
+                        id: 2,
+                        name: 'شبكة IT',
+                        type: 'network',
+                        status: 'working',
+                        location: 'IT', // قسم IT
+                        user: 'Turki', // تركي
+                        purchaseDate: '2023-10-01', // Placeholder date
+                        maintenanceDate: '2024-10-01' // Placeholder date
+                    },
+                ];
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+            }
+        }
 
         // Function to render inventory table
         function renderInventory() {
@@ -348,6 +392,8 @@
                     <td>${getDeviceStatusBadge(device.status)}</td>
                     <td>${device.location}</td>
                     <td>${device.user}</td>
+                    <td>${device.purchaseDate || 'N/A'}</td>
+                    <td>${device.maintenanceDate || 'N/A'}</td>
                     <td>
                         <button class="action-button small" onclick="editDevice(${device.id})">تعديل</button>
                         <button class="action-button small danger-button" onclick="deleteDevice(${device.id})">حذف</button>
@@ -380,7 +426,9 @@
                 type: document.getElementById('device-type').value,
                 status: document.getElementById('device-status').value,
                 location: document.getElementById('device-location').value,
-                user: document.getElementById('assigned-user').value
+                user: document.getElementById('assigned-user').value,
+                purchaseDate: document.getElementById('device-purchase-date').value, // Capture new field
+                maintenanceDate: document.getElementById('device-maintenance-date').value // Capture new field
             };
 
             if (deviceId) {
@@ -419,6 +467,8 @@
                 document.getElementById('device-status').value = deviceToEdit.status;
                 document.getElementById('device-location').value = deviceToEdit.location;
                 document.getElementById('assigned-user').value = deviceToEdit.user;
+                document.getElementById('device-purchase-date').value = deviceToEdit.purchaseDate; // Load new field
+                document.getElementById('device-maintenance-date').value = deviceToEdit.maintenanceDate; // Load new field
                 document.getElementById('modal-title').textContent = 'تعديل بيانات الجهاز';
                 document.getElementById('save-device-button').textContent = 'حفظ التعديلات';
                 openModal();
@@ -447,6 +497,8 @@
                 // If somehow on support dashboard without being Turki, redirect to login
                 // window.location.href = 'index.html';
             }
+            // Initialize inventory data on load
+            initializeInventory();
         });
     </script>
 
